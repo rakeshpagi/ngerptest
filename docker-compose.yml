@@ -1,0 +1,84 @@
+version: '3.4'
+
+services:
+  erp:
+    image: ea
+    depends_on:
+      - erp-api
+    build:
+      context: ea
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:80
+  pg:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_DB=erp
+      - POSTGRES_USER=erp
+      - POSTGRES_PASSWORD=erp      
+  erp-api:
+    depends_on:
+      - pg
+    image: erp-api
+    ports:
+      - 3001:3333
+    environment:
+      - NODE_ENV=production
+    build:
+      context: ea-api
+      args:
+        - app=erp-api
+        - port=3333
+      dockerfile: ./Dockerfile
+  todo-api:
+    depends_on:
+      - pg
+      - erp-api
+    image: todo-api
+    ports:
+      - 3002:3334
+    environment:
+      - NODE_ENV=production
+    build:
+      context: ea-api
+      args:
+        - app=todo-api
+        - port=3334
+      dockerfile: ./Dockerfile
+  inspection-api:
+    depends_on:
+      - pg
+      - erp-api      
+    image: inspection-api
+    ports:
+      - 3003:3335
+    environment:
+      - NODE_ENV=production
+    build:
+      context: ea-api
+      args:
+        - app=inspection
+        - port=3335
+      dockerfile: ./Dockerfile
+  cga-api:
+    depends_on:
+      - pg
+      - erp-api      
+    image: cga-api
+    ports:
+      - 3004:3333
+    environment:
+      - NODE_ENV=production
+    extra_hosts:
+        - "erp.railkarmikseva.in:10.1.1.1"
+    build:
+      context: ea-api
+      args:
+        - app=cga-api
+        - port=3333
+      dockerfile: ./Dockerfile
+
+

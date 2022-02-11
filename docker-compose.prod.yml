@@ -1,0 +1,43 @@
+version: '3.4'
+services:
+  erp:
+    image: hr.rvnl.org/ea:latest
+    depends_on:
+      - erp-api    
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:80
+  pg:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_DB=erp
+      - POSTGRES_USER=erp
+      - POSTGRES_PASSWORD=erp      
+  erp-api:
+    depends_on:
+      - pg
+    image: hr.rvnl.org/erp-api:latest
+    ports:
+      - 3001:3333
+    environment:
+      - NODE_ENV=production    
+  todo-api:
+    depends_on:
+      - pg
+      - erp-api
+    image: hr.rvnl.org/todo-api:latest
+    ports:
+      - 3002:3334
+    environment:
+      - NODE_ENV=production    
+  inspection-api:
+    depends_on:
+      - pg
+      - erp-api      
+    image: hr.rvnl.org/inspection-api:latest
+    ports:
+      - 3003:3335
+    environment:
+      - NODE_ENV=production    
